@@ -3,7 +3,22 @@
 ##First find the pid of a CP
 ##remove matches of the grep process
 ##TODO: Will fail if cp is sleeping, please revise.
+PID=""
+COUNT=0
+while [ -z $PID ];
+do
 PID=`ps ax | grep "cp" | grep "D+" | awk '{print $1}'`
+
+###Try 6 times before failing
+if [ "$COUNT" -eq 6 ]
+then
+echo CP pid not found!
+exit 1
+fi
+
+COUNT=$(($COUNT+1))
+sleep 1
+done
 
 TOTAL_BYTES=$(du -sb $(ps -o args -p $PID | grep cp | awk '{print $(NF-1)}') | awk '{print $1}')
 
@@ -31,7 +46,8 @@ fi
 
 
 ###Check if Human readable flag is set
-if [ "$1" == "-h" ] || [ "$3" == "-h" ]; then
+if [ "$1" == "-h" ] || [ "$3" == "-h" ];
+then
 
 ###Begin loop
 while [ $doneness -ne 100 ];
@@ -79,3 +95,5 @@ do
 done
 
 fi
+
+echo -e "\nDone\n"
